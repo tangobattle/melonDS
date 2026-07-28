@@ -1,4 +1,4 @@
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 
 include(FixInterfaceIncludes)
 
@@ -84,6 +84,10 @@ add_library(core STATIC
     xxhash/xxhash.c
 
     blip-buf/blip_buf.c)
+
+if (MSVC)
+    target_compile_options(core PRIVATE "/FI${CMAKE_CURRENT_SOURCE_DIR}/msvc_compat.h")
+endif()
 
 if (ENABLE_GDBSTUB)
     message(NOTICE "Enabling GDB stub")

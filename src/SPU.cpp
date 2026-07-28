@@ -24,6 +24,7 @@
 #include "Mic.h"
 #include "DSi.h"
 #include "DSi_I2S.h"
+#include <vector>
 #include "SPU.h"
 
 #include "blip-buf/blip_buf.h"
@@ -1029,7 +1030,8 @@ void SPU::BufferAudio()
     BlipTimer = 0;
 
     int avail = blip_samples_avail(BlipLeft);
-    s16 temp[avail * 2];
+    std::vector<s16> tempbuf(avail * 2);
+    s16* temp = tempbuf.data();
     blip_read_samples(BlipLeft, temp, avail, true);
     blip_read_samples(BlipRight, temp + 1, avail, true);
 

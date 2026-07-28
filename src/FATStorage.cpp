@@ -27,6 +27,14 @@
 
 namespace melonDS
 {
+// C++20: fs::path::u8string() returns std::u8string; the Platform APIs
+// (and this file's string handling) speak plain UTF-8 std::string.
+static std::string u8str(const std::filesystem::path& p)
+{
+    auto u8 = u8str(p);
+    return std::string(reinterpret_cast<const char*>(u8.data()), u8.size());
+}
+
 namespace fs = std::filesystem;
 using namespace Platform;
 using std::string;
@@ -433,7 +441,7 @@ bool FATStorage::ExportFile(const std::string& path, fs::path out)
                         err);
     }
 
-    fout = OpenFile(out.u8string(), FileMode::Write);
+    fout = OpenFile(u8str(out), FileMode::Write);
     if (!fout)
     {
         f_close(&file);
@@ -851,7 +859,7 @@ bool FATStorage::ImportFile(const std::string& path, fs::path in)
     FileHandle* fin;
     FRESULT res;
 
-    fin = Platform::OpenFile(in.u8string(), FileMode::Read);
+    fin = Platform::OpenFile(u8str(in), FileMode::Read);
     if (!fin)
         return false;
 
@@ -902,7 +910,7 @@ bool FATStorage::ImportDirectory(const std::string& sourcedir)
     // * files will be added if they aren't in the index, or if the size or last-modified-date don't match
     for (auto& entry : fs::recursive_directory_iterator(fs::u8path(sourcedir)))
     {
-        std::string fullpath = entry.path().u8string();
+        std::string fullpath = u8str(entry.path());
         std::string innerpath = fullpath.substr(srclen);
         if (innerpath[0] == '/' || innerpath[0] == '\\')
             innerpath = innerpath.substr(1);

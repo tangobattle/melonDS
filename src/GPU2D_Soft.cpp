@@ -386,7 +386,9 @@ template<bool mosaic>
 void SoftRenderer2D::DrawBG_Text(u32 line, u32 bgnum)
 {
     // workaround for backgrounds missing on aarch64 with lto build
+#if defined(__GNUC__) || defined(__clang__)
     asm volatile ("" : : : "memory");
+#endif
 
     u16 bgcnt = GPU2D.BGCnt[bgnum];
 
