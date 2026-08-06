@@ -157,12 +157,15 @@ static_assert(offsetof(Vertex, FinalPosition) == 36, "FinalPosition moved");
 static_assert(offsetof(Vertex, HiresPosition) == 56, "HiresPosition moved");
 
 // The runs the polygon record copies wholesale, in the struct's terms.
-static_assert(offsetof(Polygon, NumVertices) == 80, "polygon record: NumVertices moved");
-static_assert(offsetof(Polygon, WBuffer) == 164, "polygon record: the NumVertices..FinalW run moved");
-static_assert(offsetof(Polygon, Attr) == 168, "polygon record: Attr moved");
-static_assert(offsetof(Polygon, Degenerate) == 180, "polygon record: the Attr..TexPalette run moved");
-static_assert(offsetof(Polygon, Type) == 188, "polygon record: Type moved");
-static_assert(offsetof(Polygon, SortKey) == 216, "polygon record: the Type..SortKey run moved");
+// As spans between fields, not absolute offsets: everything before
+// NumVertices is pointers, and a pointer isn't the same size on every
+// target this builds for (wasm32 is ILP32).
+static_assert(offsetof(Polygon, NumVertices) == 10 * sizeof(Vertex*), "polygon record: NumVertices moved");
+static_assert(offsetof(Polygon, WBuffer) - offsetof(Polygon, NumVertices) == 84, "polygon record: the NumVertices..FinalW run moved");
+static_assert(offsetof(Polygon, Attr) - offsetof(Polygon, NumVertices) == 88, "polygon record: Attr moved");
+static_assert(offsetof(Polygon, Degenerate) - offsetof(Polygon, Attr) == 12, "polygon record: the Attr..TexPalette run moved");
+static_assert(offsetof(Polygon, Type) - offsetof(Polygon, Attr) == 20, "polygon record: Type moved");
+static_assert(offsetof(Polygon, SortKey) - offsetof(Polygon, Type) == 28, "polygon record: the Type..SortKey run moved");
 
 void Vertex::DoSavestate(Savestate* file) noexcept
 {
