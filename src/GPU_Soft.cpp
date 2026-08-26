@@ -256,9 +256,11 @@ void SoftRenderer::DrawScanline(u32 line)
 
     if (GPU.ScreensEnabled)
     {
-        // expand the color from 6-bit to 8-bit
-        if (EngineShown(0)) ExpandColor(dstA);
-        if (EngineShown(1)) ExpandColor(dstB);
+        if (!GPU.OutputUnpackedBgr666)
+        {
+            if (EngineShown(0)) ExpandColor(dstA);
+            if (EngineShown(1)) ExpandColor(dstB);
+        }
     }
     else
     {
@@ -569,7 +571,6 @@ void SoftRenderer::ExpandColor(u32* dst)
         *(u64*)&dst[i] = c | ((c & 0x00C0C0C000C0C0C0) >> 6) | 0xFF000000FF000000;
     }
 }
-
 
 bool SoftRenderer::GetFramebuffers(void** top, void** bottom)
 {

@@ -648,6 +648,13 @@ public:
     // the console.
     bool RenderEnabled = true;
 
+    // Host-side output choice for the software renderer. The regular
+    // frontend keeps the historical BGRA8888 surface; embedders that
+    // normalize pixels themselves can take the compositor's unpacked
+    // BGR666 words directly. Deliberately not savestated: this changes
+    // presentation storage, not the emulated display.
+    bool OutputUnpackedBgr666 = false;
+
     // Which of the two framebuffers a host actually shows: bit 0 the
     // top screen, bit 1 the bottom. Both by default.
     //
@@ -935,7 +942,9 @@ public:
     virtual void SyncVRAMCapture(u32 bank, u32 start, u32 len, bool complete) = 0;
 
     // a renderer may render to RAM buffers, or to something else (ie. OpenGL)
-    // if the renderer uses RAM buffers, they should be 32-bit BGRA, 256x192 for each screen
+    // RAM buffers are 256x192 32-bit BGRA unless OutputUnpackedBgr666
+    // requests 0xXXBBGGRR, with each color in the low six bits of its
+    // byte lane.
     virtual bool GetFramebuffers(void** top, void** bottom) = 0;
     virtual void SwapBuffers() { BackBuffer ^= 1; }
 
